@@ -7,7 +7,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 #实体
-from homeassistant.components.binary_sensor import PLATFORM_SCHEMA, BinarySensorDevice, DEVICE_CLASS_MOTION, DOMAIN
+from homeassistant.components.binary_sensor import PLATFORM_SCHEMA, BinarySensorDeviceClass, DEVICE_CLASS_MOTION, DOMAIN
 
 from .Faces_Datas import Faces_Datas
 
@@ -85,7 +85,7 @@ async def async_setup_platform(hass,
                                  schema=SERVICE_CHANGE_EZVIZ_IS_UPDATE_SCHEMA)
 
 
-class FaceRecognition(BinarySensorDevice):
+class FaceRecognition(BinarySensorDeviceClass):
     def __init__(self, face_data, deviceid, messagestatus, alarmtype,
                  grouplist):
         self._face_data = face_data
