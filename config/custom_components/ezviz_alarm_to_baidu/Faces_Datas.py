@@ -158,7 +158,7 @@ class Faces_Datas(object):
         elif 'error_code' in result and result['error_code'] == 222207:
             _LOGGER.debug("百度人脸搜索未匹配到人脸")
         else:
-            _LOGGER.error("百度人脸搜索错误:%s", result)
+            _LOGGER.error("百度人脸搜索错误:%s", result,payload)
 
     async def fetch_data(
         self,

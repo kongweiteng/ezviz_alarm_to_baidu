@@ -6,25 +6,25 @@ import asyncio
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
-#实体
+# 实体
 from homeassistant.components.binary_sensor import PLATFORM_SCHEMA, BinarySensorEntity, DEVICE_CLASS_MOTION, DOMAIN
 
 from .Faces_Datas import Faces_Datas
 
-#萤石
+# 萤石
 APPKEY = "appKey"
 APPSECRET = "appSecret"
-#百度
+# 百度
 CLIENT_ID = "clientid"
 CLIENT_SECRET = "clientSecret"
 FACE_GROUP = "facesgroup"
-#设备序列号
+# 设备序列号
 DEVICESID_LIST = "devices"
-#消息类型 2-所有，1-已读，0-未读，默认为0（未读状态）
+# 消息类型 2-所有，1-已读，0-未读，默认为0（未读状态）
 MESSAGESTATUS = 0
-#告警类型，默认为-1（全部）10000为人体感应
+# 告警类型，默认为-1（全部）10000为人体感应
 ALARMTYPE = 10000
-#验证数据
+# 验证数据
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required("ezviz"): {
         vol.Required(APPKEY): cv.string,
@@ -48,23 +48,23 @@ async def async_setup_platform(hass,
                                config,
                                async_add_devices,
                                discovery_info=None):
-    #先打印一个日志,感受我的存在
+    # 先打印一个日志,感受我的存在
     _LOGGER.info("萤石人体感应开始加载")
-    #获取yml中的参数
+    # 获取yml中的参数
     appkey = config.get('ezviz')[APPKEY]
     appSecret = config.get('ezviz')[APPSECRET]
     devices_list = config.get('ezviz')[DEVICESID_LIST]
     client_id = config.get('baidu')[CLIENT_ID]
     client_secret = config.get('baidu')[CLIENT_SECRET]
     face_group = config.get('baidu')[FACE_GROUP]
-    #创建获取数据类
+    # 创建获取数据类
     face_data = Faces_Datas(hass, appkey, appSecret, client_id, client_secret,
                             True)
-    #获取萤石和百度token
+    # 获取萤石和百度token
     await face_data.async_get_ezviz_token(datetime.datetime.now())
     await face_data.async_get_baidu_token(datetime.datetime.now())
 
-    #创建实体
+    # 创建实体
     creat_entiy = []
     for device in devices_list:
         creat_entiy.append(
@@ -78,7 +78,7 @@ async def async_setup_platform(hass,
         face_data._is_update = status
         _LOGGER.debug("更新状态是:%s", status)
 
-    #增加一个服务,开关更新状态
+    # 增加一个服务,开关更新状态
     hass.services.async_register(DOMAIN,
                                  "change_ezviz_is_update",
                                  change_ezviz_is_update,
@@ -137,7 +137,7 @@ class FaceRecognition(BinarySensorEntity):
         """获取萤石消息列表"""
         if self._face_data.ezviz_accessToken is None:
             _LOGGER.error("没有萤石Token.....")
-            #休息120秒
+            # 休息120秒
             await asyncio.sleep(120)
             if self._face_data.ezviz_accessToken is None:
                 await self._face_data.async_get_ezviz_token(
@@ -151,14 +151,15 @@ class FaceRecognition(BinarySensorEntity):
         }
         ezvizmessage = await self._face_data.async_get_ezviz_messageList(
             ezviz_payload)
+        _LOGGER.info("萤石云返回结果:", ezvizmessage)
         if ezvizmessage is not None and self._updatetime != ezvizmessage[
-                'alarmTime']:
+            'alarmTime']:
             self._updatetime = ezvizmessage['alarmTime']
             self._is_on = True
-            #获取图片进行人脸搜索
+            # 获取图片进行人脸搜索
             if self._face_data.baidu_accessToken is None:
                 _LOGGER.error("没有百度Token.....")
-                #休息120秒
+                # 休息120秒
                 await asyncio.sleep(120)
                 if self._face_data.ezviz_accessToken is None:
                     await self._face_data.async_get_baidu_token(
